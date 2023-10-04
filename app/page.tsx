@@ -1,9 +1,11 @@
-import Portal from '../components/graphics/portal';
-import {usePrivy} from '@privy-io/react-auth';
-import Head from 'next/head';
+'use client';
+
+import Portal from "../components/graphics/portal";
+import { usePrivy } from "@privy-io/react-auth";
+import Head from "next/head";
 
 export default function LoginPage() {
-  const {login} = usePrivy();
+  const { login } = usePrivy();
 
   return (
     <>
@@ -15,7 +17,7 @@ export default function LoginPage() {
         <div className="flex bg-privy-light-blue flex-1 p-6 justify-center items-center">
           <div>
             <div>
-              <Portal style={{maxWidth: '100%', height: 'auto'}} />
+              <Portal style={{ maxWidth: "100%", height: "auto" }} />
             </div>
             <div className="mt-6 flex justify-center text-center">
               <button
