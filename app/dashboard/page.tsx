@@ -5,6 +5,11 @@ import React, { useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import Head from "next/head";
 
+////////////////////////////////////////////////////////
+import {ethers} from 'ethers';
+import { useData } from "../../context/DataContext";
+////////////////////////////////////////////////////////
+
 export default function DashboardPage() {
   const router = useRouter();
   const {
@@ -42,6 +47,44 @@ export default function DashboardPage() {
   const googleSubject = user?.google?.subject || null;
   const twitterSubject = user?.twitter?.subject || null;
   const discordSubject = user?.discord?.subject || null;
+
+  ////////////////////////////////////////////////////////////////////////////
+  const { goMarket, loadAuth, loadBlockchainData, account, walletSigner, feeData } = useData!();
+  const [loading, setLoading] = React.useState(false);
+
+  if (ready && authenticated) {
+    loadAuth();
+  };
+
+  useEffect(() => {
+    loadBlockchainData();
+  }, [loading, account]);
+
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    let dateInWeek = new Date();
+    dateInWeek.setDate(dateInWeek.getDate() + 7);
+    const deadline = Math.floor(dateInWeek.getTime() / 1000);
+
+    const gasLimit = await goMarket.createMarket.estimateGas('Hello, World', 'This is description', 'Crypto', 'www.privy.io', deadline);
+    const tx = {
+      from: walletSigner.address,
+      to: goMarket.target,
+      gasPrice: await feeData.gasPrice,
+      gasLimit: ethers.toBeHex(gasLimit.toString()),
+      data: goMarket.interface.encodeFunctionData('createMarket', ['Hello, World', 'This is description', 'Crypto', 'www.privy.io', deadline])
+    };
+
+    await walletSigner.signTransaction(tx);
+
+    const sentTx = await walletSigner.sendTransaction(tx);
+
+    await sentTx.wait();
+
+    setLoading(false);
+  }
+////////////////////////////////////////////////////////////////////////////
 
   return (
     <>
@@ -180,7 +223,28 @@ export default function DashboardPage() {
                 </button>
               )}
             </div>
-
+            <div className="flex flex-col justify-center items-center h-full p-5">
+            {(ready && authenticated) ? (
+              loading ? (
+                <span className="text-center pt-5 pb-3 text-xl font-bold">
+                  Loading...
+                </span>
+              ) : (
+                <button
+                  className="mt-5 rounded-lg py-3 text-center w-full bg-green-500 text-white font-bold"
+                  onClick={() => {
+                    handleSubmit();
+                  }}
+                >
+                  Create Market
+                </button>
+              )
+            ): (
+              <span className="text-center pt-5 pb-3 text-xl font-bold">
+                  Loading...
+                </span>
+            )}
+            </div>
             <p className="mt-6 font-bold uppercase text-sm text-gray-600">
               User object
             </p>

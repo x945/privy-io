@@ -17,6 +17,9 @@
     "jsx": "preserve",
     "incremental": true,
     "noImplicitReturns": false,
+    "preserveValueImports": false,
+    "importsNotUsedAsValues": "remove",
+    "verbatimModuleSyntax": true,
     "noPropertyAccessFromIndexSignature": false,
     "exactOptionalPropertyTypes": false,
     "plugins": [
